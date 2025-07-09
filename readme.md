@@ -31,5 +31,3 @@ A smart AI assistant that compares your **Resume** with any **Job Description** 
 
 ---
 
-## 📁 Project Structure
-
