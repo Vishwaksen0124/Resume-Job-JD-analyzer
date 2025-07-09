@@ -28,4 +28,4 @@ if resume_file and jd_file and os.getenv("MISTRAL_API_KEY"):
         st.markdown("### 📊 Analysis Result")
         st.write(response)
 else:
-    st.warning("Please upload both files and make sure MISTRAL_API_KEY is set in your .env.")
+    st.warning("Please upload both the files")
