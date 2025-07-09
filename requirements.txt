@@ -1,10 +1,10 @@
 streamlit
+python-dotenv
 langchain
 langchain-community
-mistralai
-faiss-cpu
-tiktoken
-pymupdf
-python-docx
-python-dotenv
+langchain-huggingface
 sentence-transformers
+faiss-cpu
+mistralai
+PyMuPDF
+python-docx

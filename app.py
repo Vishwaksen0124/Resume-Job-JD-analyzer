@@ -1,31 +1,33 @@
-import os
+# app.py
 import streamlit as st
-from dotenv import load_dotenv
-from utils.doc_loader import load_text
-from qa_chain import build_comparison_prompt, run_analysis
+import os
+from utils.doc_loader import load_document, chunk_documents
+from qa_chain import run_rag_analysis
 
-load_dotenv()
+st.set_page_config(page_title="🧠 Resume + JD Analyzer (RAG)")
+st.title("📄 Resume + Job Description Analyzer (RAG)")
 
-st.set_page_config(page_title="Resume & JD Analyzer")
-st.title("📄 Resume + Job Description Analyzer")
+resume_file = st.file_uploader("Upload Resume (PDF/DOCX/TXT)", type=["pdf", "docx", "txt"])
+jd_file = st.file_uploader("Upload Job Description (PDF/DOCX/TXT)", type=["pdf", "docx", "txt"])
 
-resume_file = st.file_uploader("Upload your Resume (PDF or DOCX)", type=["pdf", "docx"])
-jd_file = st.file_uploader("Upload Job Description (PDF or DOCX)", type=["pdf", "docx"])
+if resume_file and jd_file:
+    with st.spinner("Processing files..."):
+        # Save temporarily
+        os.makedirs("temp", exist_ok=True)
+        resume_path = os.path.join("temp", resume_file.name)
+        jd_path = os.path.join("temp", jd_file.name)
+        with open(resume_path, "wb") as f: f.write(resume_file.read())
+        with open(jd_path, "wb") as f: f.write(jd_file.read())
 
-if resume_file and jd_file and os.getenv("MISTRAL_API_KEY"):
-    with st.spinner("Processing..."):
-        resume_path = f"data/resumes/{resume_file.name}"
-        jd_path = f"data/jds/{jd_file.name}"
-        resume_docs = load_text(resume_file, resume_path)
-        jd_docs = load_text(jd_file, jd_path)
+        resume_docs = load_document(resume_path)
+        jd_docs = load_document(jd_path)
 
-        resume_text = "\n".join([doc.page_content for doc in resume_docs])
-        jd_text = "\n".join([doc.page_content for doc in jd_docs])
+        resume_chunks = chunk_documents(resume_docs)
+        jd_chunks = chunk_documents(jd_docs)
 
-        prompt = build_comparison_prompt(resume_text, jd_text)
-        response = run_analysis(prompt)
+        response = run_rag_analysis(resume_chunks, jd_chunks)
 
-        st.markdown("### 📊 Analysis Result")
-        st.write(response)
+    st.markdown("### ✅ Analysis Output")
+    st.write(response)
 else:
-    st.warning("Please upload both the files")
+    st.info("Please upload both Resume and Job Description to begin.")
